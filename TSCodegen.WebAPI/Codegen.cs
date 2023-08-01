@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace TSCodegen.WebAPI
 {
@@ -50,7 +49,9 @@ namespace TSCodegen.WebAPI
             ControllersAssembly = Assembly.GetCallingAssembly();
             AbsoluteOutputPath = Helpers.GetSolutionRootDir().FullName + config.OutputPath;
             GenerateHeader();
+            GenerateFileNamesList();
             GenerateServices();
+            DeleteExcessFiles();
         }
 
         private static void GenerateHeader()
@@ -68,6 +69,15 @@ namespace TSCodegen.WebAPI
             var str4 = dashes + spaces + text2 + spaces + dashes;
 
             Header = new List<string> { str1, str2, str3, str4, str2, str1 };
+        }
+
+        private static void GenerateFileNamesList(string path = null)
+        {
+            foreach (var file in Directory.GetFiles(path ?? AbsoluteOutputPath))
+                FileNames.Add(file);
+
+            foreach (var subDirectory in Directory.GetDirectories(path ?? AbsoluteOutputPath))
+                GenerateFileNamesList(subDirectory);
         }
 
         private static IEnumerable<Type> GetControllers()
@@ -234,7 +244,7 @@ namespace TSCodegen.WebAPI
             return strings;
         }
 
-        private static void WriteFile(string path, List<string> strings)
+        private static void WriteFile(string fileName, List<string> strings)
         {
             var text = string.Join("\n", Header) + "\n\n" + string.Join("\n", strings);
 
@@ -242,8 +252,10 @@ namespace TSCodegen.WebAPI
                 text += "\n";
 
             // Newlines can be converted from \n to \r\n, to handle that replace all \r\n to \n before comparison
-            if (File.Exists(path) ? File.ReadAllText(path).Replace("\r\n", "\n") != text : true)
-                File.WriteAllText(path, text);
+            if (File.Exists(fileName) ? File.ReadAllText(fileName).Replace("\r\n", "\n") != text : true)
+                File.WriteAllText(fileName, text);
+
+            FileNames.Remove(fileName);
         }
 
         private static void GenerateServices()
@@ -299,6 +311,12 @@ namespace TSCodegen.WebAPI
             indexLines.Add("};");
 
             WriteFile(AbsoluteOutputPath + @"\index.ts", indexLines);
+        }
+
+        private static void DeleteExcessFiles()
+        {
+            foreach (var fileName in FileNames)
+                File.Delete(fileName);
         }
     }
 }

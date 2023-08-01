@@ -19,7 +19,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="TSCodegen\bin\Release\**\*.dll" target="lib" />
-    <file src="TSCodegen\bin\Release\**\*.pdb" target="lib" />
+    <file src="TSCodegen.WebAPI\bin\Release\**\*.dll" target="lib" />
+    <file src="TSCodegen.WebAPI\bin\Release\**\*.pdb" target="lib" />
   </files>
 </package>

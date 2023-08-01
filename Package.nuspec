@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>TSCodegen.WebAPI</id>
+    <version>1.0.0</version>
+    <authors>0x2E757</authors>
+    <owners>0x2E757</owners>
+    <license type="expression">MIT</license>
+    <repository type="git" url="https://github.com/0x2E757/TSCodegen.WebAPI.git" branch="main" />
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Library for C# ASP.NET controllers conversion to TypeScript axios services</description>
+    <copyright>Copyright 2023</copyright>
+    <tags>tscodegenwebapi tscodegen.webapi tscodegen codegen code generation generator aspnet asp.net c# csharp sharp web api http controller controllers get post ts typescript type types declaration declarations interfaces enums service services axios</tags>
+    <dependencies>
+      <group targetFramework="netstandard2.0">
+        <dependency id="Microsoft.AspNetCore.Mvc.Core" version="2.2.5" />
+        <dependency id="TSCodegen" version="1.4.1" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="TSCodegen\bin\Release\**\*.dll" target="lib" />
+    <file src="TSCodegen\bin\Release\**\*.pdb" target="lib" />
+  </files>
+</package>

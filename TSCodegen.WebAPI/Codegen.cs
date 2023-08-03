@@ -73,12 +73,19 @@ namespace TSCodegen.WebAPI
 
         private static void GenerateFileNamesList(string path = null)
         {
-            FileNames = new List<string>();
+            if (path == null)
+            {
+                FileNames = new List<string>();
+                path = AbsoluteOutputPath;
 
-            foreach (var file in Directory.GetFiles(path ?? AbsoluteOutputPath))
+                if (!Directory.Exists(path))
+                    return;
+            }
+
+            foreach (var file in Directory.GetFiles(path))
                 FileNames.Add(file);
 
-            foreach (var subDirectory in Directory.GetDirectories(path ?? AbsoluteOutputPath))
+            foreach (var subDirectory in Directory.GetDirectories(path))
                 GenerateFileNamesList(subDirectory);
         }
 

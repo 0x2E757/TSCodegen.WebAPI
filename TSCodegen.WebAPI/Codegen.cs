@@ -15,6 +15,7 @@ namespace TSCodegen.WebAPI
             public string AxiosImportPath { get; set; }
             public int Indentitation { get; set; } = 4;
             public List<Type> IgnoreControllers { get; set; } = new List<Type>();
+            public List<string> ForbiddenNamespaces { get; set; } = new List<string>();
         }
 
         private static string[] HttpReadTypes { get; } = new string[] { "GET", "DELETE", "HEAD", "OPTIONS" };
@@ -174,7 +175,6 @@ namespace TSCodegen.WebAPI
                     else if (CurrentHttpMethodParameters.Length > 1)
                         return new List<string>()
                         {
-                            $"{IndentSpaces}const data = null;",
                             $"{IndentSpaces}const params = {{ {string.Join(", ", CurrentHttpMethodParameters.Select(p => p.Name))} }};",
                         };
             }
@@ -210,6 +210,9 @@ namespace TSCodegen.WebAPI
         private static List<string> GetRelatedBaseTypeNameList(TypeScriptType typeScriptType)
         {
             var result = new List<string>() { };
+
+            while (typeScriptType.HasElement)
+                typeScriptType = typeScriptType.Element;
 
             if (typeScriptType.HasDeclaration)
             {
@@ -268,10 +271,11 @@ namespace TSCodegen.WebAPI
                 strings.Add($"");
             }
 
-            strings.Add($"export default ({string.Join(", ", parameterStrings.ToArray().Reverse())}) => {{");
+            strings.Add($"export default async ({string.Join(", ", parameterStrings.ToArray().Reverse())}) => {{");
             strings.Add($"{IndentSpaces}const url = \"{Helpers.GetControllerName(CurrentController)}/{CurrentHttpMethod.Name}\";");
             strings.AddRange(functionVariables);
-            strings.Add($"{IndentSpaces}return axios.{CurrentHttpMethodType.ToLower()}<{typeScriptReturnType.GetFullTypeName()}>({GenerateHttpMethodAxiosArguments()});");
+            strings.Add($"{IndentSpaces}const response = await axios.{CurrentHttpMethodType.ToLower()}<{typeScriptReturnType.GetFullTypeName()}>({GenerateHttpMethodAxiosArguments()});");
+            strings.Add($"{IndentSpaces}return response.data;");
             strings.Add($"}}");
             strings.Add($"");
 
@@ -304,7 +308,7 @@ namespace TSCodegen.WebAPI
                 var controllerIndexLines = new List<string>();
 
                 CurrentController = controller;
-                ControllerTypeScriptTypes = new TypeScriptTypes();
+                ControllerTypeScriptTypes = new TypeScriptTypes(CurrentConfig.ForbiddenNamespaces);
 
                 var serviceDirName = AbsoluteOutputPath + @"\" + Helpers.GetControllerName(CurrentController).ToCamelCase();
 

@@ -157,7 +157,14 @@ namespace TSCodegen.WebAPI
                         };
 
                 if (CurrentHttpMethodIsWriteType)
-                    if (CurrentHttpMethodParameters.Length > 1)
+                    if (CurrentHttpMethodParameters[0].GetCustomAttributes(typeof(FromFormAttribute)).Any())
+                        return new List<string>()
+                        {
+                            $"{IndentSpaces}const form = new FormData();",
+                            $"{IndentSpaces}for (const [key, value] of Object.entries({CurrentHttpMethodParameters[0].Name}))",
+                            $"{IndentSpaces}{IndentSpaces}form.append(key, value);",
+                        };
+                    else if (CurrentHttpMethodParameters.Length > 1)
                         return new List<string>()
                         {
                             $"{IndentSpaces}const data = null;",
@@ -182,7 +189,10 @@ namespace TSCodegen.WebAPI
 
                 if (CurrentHttpMethodIsWriteType)
                     if (CurrentHttpMethodParameters.Length == 1)
-                        return result += $", {CurrentHttpMethodParameters[0].Name}";
+                        if (CurrentHttpMethodParameters[0].GetCustomAttributes(typeof(FromFormAttribute)).Any())
+                            return result += $", form";
+                        else
+                            return result += $", {CurrentHttpMethodParameters[0].Name}";
                     else
                         return result += $", null, {{ params }}";
             }

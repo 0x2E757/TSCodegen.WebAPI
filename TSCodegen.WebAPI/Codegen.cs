@@ -73,6 +73,8 @@ namespace TSCodegen.WebAPI
 
         private static void GenerateFileNamesList(string path = null)
         {
+            FileNames = new List<string>();
+
             foreach (var file in Directory.GetFiles(path ?? AbsoluteOutputPath))
                 FileNames.Add(file);
 

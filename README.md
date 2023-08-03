@@ -6,6 +6,12 @@ Based on [TSCodegen](https://github.com/0x2E757/TSCodegen) library.
 
 Compatible with .NET Standard 2.0 and higher!
 
+## How it works
+
+`Codegen` will examine calling assembly for all classes with the `ApiController` attribute. Then for each matching class `Codegen` will iterate over all methods with any attribute that starts with "Http" prefix (e.g. `HttpGet`).
+
+`Codegen` will also handle methods with first argument having attribute `FromBody` for GET, DELETE, HEAD, OPTIONS methods and `FromForm` for POST, PUT, PATCH methods, though such methods must contain only one argument.
+
 ## Prerequisites
 
 Install `axios` and `qs` (querystring) to your frontend project.

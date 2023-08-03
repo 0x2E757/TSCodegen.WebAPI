@@ -236,6 +236,21 @@ namespace TSCodegen.WebAPI
             if (strings.Last() != "")
                 strings.Add($"");
 
+            if (CurrentHttpMethodHasParameters && CurrentHttpMethodIsReadType)
+            {
+                strings.Add($"export interface I{CurrentHttpMethodAlias.ToPascalCase()}Args {{");
+
+                foreach (var parameter in CurrentHttpMethodParameters)
+                {
+                    var typeScriptType = new TypeScriptType(parameter.ParameterType);
+
+                    strings.Add($"{IndentSpaces}{parameter.Name}{(typeScriptType.IsNullable ? "?" : "")}: {typeScriptType.GetFullTypeName()};");
+                }
+
+                strings.Add($"}}");
+                strings.Add($"");
+            }
+
             strings.Add($"export default ({string.Join(", ", parameterStrings.ToArray().Reverse())}) => {{");
             strings.Add($"{IndentSpaces}const url = \"{Helpers.GetControllerName(CurrentController)}/{CurrentHttpMethod.Name}\";");
             strings.AddRange(functionVariables);

@@ -30,5 +30,16 @@
 
             return value;
         }
+
+        public static string ToPascalCase(this string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return value;
+
+            if (value.Length == 1)
+                return value.ToUpper();
+
+            return value.Substring(0, 1).ToUpper() + value.Substring(1);
+        }
     }
 }

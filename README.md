@@ -35,6 +35,10 @@ Codegen.Run(new Codegen.Config
     IgnoreControllers = new()
     {
         typeof(BaseController),
+    },
+    ForbiddenNamespaces = new()
+    {
+        "Project.Database.Core.Entities",
     }
 });
 #endif
@@ -57,6 +61,10 @@ Space indentitation size for generated code.
 #### IgnoreControllers
 
 List of controllers that will be omited.
+
+### ForbiddenNamespaces
+
+List of namespaces that entities of will throw exception.
 
 ### DateTime conversion
 

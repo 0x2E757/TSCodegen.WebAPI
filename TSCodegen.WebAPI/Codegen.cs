@@ -13,7 +13,7 @@ namespace TSCodegen.WebAPI
         {
             public string OutputPath { get; set; }
             public string AxiosImportPath { get; set; }
-            public int Indentitation { get; set; } = 4;
+            public int Indentation { get; set; } = 4;
             public List<Type> IgnoreControllers { get; set; } = new List<Type>();
             public List<string> ForbiddenNamespaces { get; set; } = new List<string>();
         }
@@ -38,7 +38,7 @@ namespace TSCodegen.WebAPI
         private static string CurrentHttpMethodType { get; set; }
         private static string CurrentHttpMethodAlias { get; set; }
 
-        private static string IndentSpaces => new string(' ', CurrentConfig.Indentitation);
+        private static string IndentSpaces => new string(' ', CurrentConfig.Indentation);
         private static bool CurrentHttpMethodHasParameters => CurrentHttpMethodParameters.Length > 0;
         private static bool CurrentHttpMethodIsReadType => HttpReadTypes.Contains(CurrentHttpMethodType);
         private static bool CurrentHttpMethodIsWriteType => HttpWriteTypes.Contains(CurrentHttpMethodType);
@@ -331,7 +331,7 @@ namespace TSCodegen.WebAPI
                     controllerIndexLines.Add($"export {{ default as {CurrentHttpMethodAlias.ToCamelCase()} }} from \"./{CurrentHttpMethodAlias.ToCamelCase()}\";");
                 }
 
-                WriteFile(serviceDirName + @"\types.ts", ControllerTypeScriptTypes.GetDeclarations(CurrentConfig.Indentitation, true));
+                WriteFile(serviceDirName + @"\types.ts", ControllerTypeScriptTypes.GetDeclarations(CurrentConfig.Indentation, true));
 
                 controllerIndexLines.Add("export * from \"./types\";");
 

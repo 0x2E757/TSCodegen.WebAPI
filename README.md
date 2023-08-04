@@ -31,7 +31,7 @@ Codegen.Run(new Codegen.Config
 {
     OutputPath = @"\ui\api",
     AxiosImportPath = @"axios",
-    Indentitation = 4,
+    Indentation = 4,
     IgnoreControllers = new()
     {
         typeof(BaseController),
@@ -54,9 +54,9 @@ Output path that is relative to the `.sln` file.
 
 Path for `import` expression, e.g. with `axios` value will emit `import axios from "axios";`. Can be used to specify custom file with axios instance default export.
 
-#### Indentitation
+#### Indentation
 
-Space indentitation size for generated code.
+Space indentation size for generated code.
 
 #### IgnoreControllers
 

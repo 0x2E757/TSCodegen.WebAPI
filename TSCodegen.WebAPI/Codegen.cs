@@ -170,7 +170,8 @@ namespace TSCodegen.WebAPI
                         {
                             $"{IndentSpaces}const form = new FormData();",
                             $"{IndentSpaces}for (const [key, value] of Object.entries({CurrentHttpMethodParameters[0].Name}))",
-                            $"{IndentSpaces}{IndentSpaces}form.append(key, value);",
+                            $"{IndentSpaces}{IndentSpaces}if (value !== null && value !== undefined)",
+                            $"{IndentSpaces}{IndentSpaces}{IndentSpaces}form.append(key, value);",
                         };
                     else if (CurrentHttpMethodParameters.Length > 1)
                         return new List<string>()

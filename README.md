@@ -62,7 +62,7 @@ Space indentation size for generated code.
 
 List of controllers that will be omited.
 
-### ForbiddenNamespaces
+#### ForbiddenNamespaces
 
 List of namespaces that entities of will throw exception.
 

@@ -168,10 +168,8 @@ namespace TSCodegen.WebAPI
                     if (CurrentHttpMethodParameters[0].GetCustomAttributes(typeof(FromFormAttribute)).Any())
                         return new List<string>()
                         {
-                            $"{IndentSpaces}const form = new FormData();",
-                            $"{IndentSpaces}for (const [key, value] of Object.entries({CurrentHttpMethodParameters[0].Name}))",
-                            $"{IndentSpaces}{IndentSpaces}if (value !== null && value !== undefined)",
-                            $"{IndentSpaces}{IndentSpaces}{IndentSpaces}form.append(key, value);",
+                            $"{IndentSpaces}const headers = {{ \"Content-Type\": \"multipart/form-data\" }};",
+                            $"{IndentSpaces}const config = {{ headers }};",
                         };
                     else if (CurrentHttpMethodParameters.Length > 1)
                         return new List<string>()
@@ -198,7 +196,7 @@ namespace TSCodegen.WebAPI
                 if (CurrentHttpMethodIsWriteType)
                     if (CurrentHttpMethodParameters.Length == 1)
                         if (CurrentHttpMethodParameters[0].GetCustomAttributes(typeof(FromFormAttribute)).Any())
-                            return result += $", form";
+                            return result += $", {CurrentHttpMethodParameters[0].Name}, config";
                         else
                             return result += $", {CurrentHttpMethodParameters[0].Name}";
                     else

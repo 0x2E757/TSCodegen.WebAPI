@@ -165,13 +165,7 @@ namespace TSCodegen.WebAPI
                         };
 
                 if (CurrentHttpMethodIsWriteType)
-                    if (CurrentHttpMethodParameters[0].GetCustomAttributes(typeof(FromFormAttribute)).Any())
-                        return new List<string>()
-                        {
-                            $"{IndentSpaces}const headers = {{ \"Content-Type\": \"multipart/form-data\" }};",
-                            $"{IndentSpaces}const config = {{ headers }};",
-                        };
-                    else if (CurrentHttpMethodParameters.Length > 1)
+                    if (CurrentHttpMethodParameters.Length > 1)
                         return new List<string>()
                         {
                             $"{IndentSpaces}const params = {{ {string.Join(", ", CurrentHttpMethodParameters.Select(p => p.Name))} }};",
@@ -195,10 +189,7 @@ namespace TSCodegen.WebAPI
 
                 if (CurrentHttpMethodIsWriteType)
                     if (CurrentHttpMethodParameters.Length == 1)
-                        if (CurrentHttpMethodParameters[0].GetCustomAttributes(typeof(FromFormAttribute)).Any())
-                            return result += $", {CurrentHttpMethodParameters[0].Name}, config";
-                        else
-                            return result += $", {CurrentHttpMethodParameters[0].Name}";
+                        return result += $", {CurrentHttpMethodParameters[0].Name}";
                     else
                         return result += $", null, {{ params }}";
             }
@@ -270,10 +261,12 @@ namespace TSCodegen.WebAPI
                 strings.Add($"");
             }
 
+            var httpMethodPostfix = CurrentHttpMethodParameters.Length > 0 && CurrentHttpMethodParameters[0].GetCustomAttributes(typeof(FromFormAttribute)).Any() ? "Form" : string.Empty;
+
             strings.Add($"export default async ({string.Join(", ", parameterStrings.ToArray().Reverse())}) => {{");
             strings.Add($"{IndentSpaces}const url = \"{Helpers.GetControllerName(CurrentController)}/{CurrentHttpMethod.Name}\";");
             strings.AddRange(functionVariables);
-            strings.Add($"{IndentSpaces}const response = await axios.{CurrentHttpMethodType.ToLower()}<{typeScriptReturnType.GetFullTypeName()}>({GenerateHttpMethodAxiosArguments()});");
+            strings.Add($"{IndentSpaces}const response = await axios.{CurrentHttpMethodType.ToLower()}{httpMethodPostfix}<{typeScriptReturnType.GetFullTypeName()}>({GenerateHttpMethodAxiosArguments()});");
             strings.Add($"{IndentSpaces}return response.data;");
             strings.Add($"}}");
             strings.Add($"");

@@ -155,7 +155,7 @@ namespace TSCodegen.WebAPI
                     if (CurrentHttpMethodParameters[0].GetCustomAttributes(typeof(FromBodyAttribute)).Any())
                         return new List<string>()
                         {
-                            $"{IndentSpaces}const data = {{ {CurrentHttpMethodParameters[0].Name} }};",
+                            $"{IndentSpaces}const data = {CurrentHttpMethodParameters[0].Name};",
                         };
                     else
                         return new List<string>()

@@ -14,7 +14,6 @@ namespace TSCodegen.WebAPI
             public string OutputPath { get; set; }
             public string AxiosImportPath { get; set; }
             public int Indentation { get; set; } = 4;
-            public List<Type> IgnoreControllers { get; set; } = new List<Type>();
             public List<string> ForbiddenNamespaces { get; set; } = new List<string>();
         }
 
@@ -94,14 +93,18 @@ namespace TSCodegen.WebAPI
         {
             var types = ControllersAssembly.GetTypes();
 
-            return Controllers = types.Where(t => t.GetCustomAttributes(typeof(ApiControllerAttribute)).Any());
+            return Controllers = types
+                .Where(t => t.GetCustomAttributes(typeof(ApiControllerAttribute)).Any())
+                .Where(t => t.GetCustomAttribute(typeof(CodegenIgnoreAttribute)) == null);
         }
 
         private static IEnumerable<MethodInfo> GetHttpMethods()
         {
             var methods = CurrentController.GetMethods();
 
-            return HttpMethods = methods.Where(m => m.GetCustomAttributes().Any(ca => ca.GetType().Name.StartsWith("Http")));
+            return HttpMethods = methods
+                .Where(m => m.GetCustomAttributes().Any(ca => ca.GetType().Name.StartsWith("Http")))
+                .Where(t => t.GetCustomAttribute(typeof(CodegenIgnoreAttribute)) == null);
         }
 
         private static void GetCurrentHttpMethodParameters()
@@ -294,9 +297,6 @@ namespace TSCodegen.WebAPI
 
             foreach (var controller in GetControllers())
             {
-                if (CurrentConfig.IgnoreControllers.Contains(controller))
-                    continue;
-
                 var controllerIndexLines = new List<string>();
 
                 CurrentController = controller;

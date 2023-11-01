@@ -32,10 +32,6 @@ Codegen.Run(new Codegen.Config
     OutputPath = @"\ui\api",
     AxiosImportPath = @"axios",
     Indentation = 4,
-    IgnoreControllers = new()
-    {
-        typeof(BaseController),
-    },
     ForbiddenNamespaces = new()
     {
         "Project.Database.Core.Entities",
@@ -43,6 +39,8 @@ Codegen.Run(new Codegen.Config
 });
 #endif
 ```
+
+To controllers or methods you would like to omit apply `CodegenIgnore` attribute.
 
 ### Codegen.Config properties
 
@@ -57,10 +55,6 @@ Path for `import` expression, e.g. with `axios` value will emit `import axios fr
 #### Indentation
 
 Space indentation size for generated code.
-
-#### IgnoreControllers
-
-List of controllers that will be omited.
 
 #### ForbiddenNamespaces
 

@@ -14,6 +14,8 @@ namespace TSCodegen.WebAPI
             public string OutputPath { get; set; }
             public string AxiosImportPath { get; set; }
             public int Indentation { get; set; } = 4;
+            public bool AllowDots { get; set; } = true;
+            public bool SkipNulls { get; set; } = true;
             public List<string> ForbiddenNamespaces { get; set; } = new List<string>();
         }
 
@@ -25,6 +27,7 @@ namespace TSCodegen.WebAPI
         private static Assembly ControllersAssembly { get; set; }
         private static string AbsoluteOutputPath { get; set; }
 
+        private static string QueryStringStringifyOptions { get; set; }
         private static List<string> Header { get; set; }
         private static List<string> FileNames { get; set; }
 
@@ -49,9 +52,23 @@ namespace TSCodegen.WebAPI
             ControllersAssembly = Assembly.GetCallingAssembly();
             AbsoluteOutputPath = Helpers.GetSolutionRootDir().FullName + config.OutputPath;
             GenerateHeader();
+            GenerateQueryStringStringifyOptions();
             GenerateFileNamesList();
             GenerateServices();
             DeleteExcessFiles();
+        }
+
+        private static void GenerateQueryStringStringifyOptions()
+        {
+            var options = new List<string>();
+
+            if (CurrentConfig.AllowDots)
+                options.Add("allowDots: true");
+
+            if (CurrentConfig.SkipNulls)
+                options.Add("skipNulls: true");
+
+            QueryStringStringifyOptions = options.Count > 0 ? $"{{ {string.Join(", ", options)} }}" : "";
         }
 
         private static void GenerateHeader()
@@ -150,6 +167,19 @@ namespace TSCodegen.WebAPI
             return parameterStrings;
         }
 
+        private static string GenerateQueryStringStringifyArguments()
+        {
+            var argumentsRaw = new List<string>()
+            {
+                "params",
+                QueryStringStringifyOptions
+            };
+
+            var argumentsFiltered = argumentsRaw.Where(argument => !string.IsNullOrEmpty(argument)).ToList();
+
+            return string.Join(", ", argumentsFiltered);
+        }
+
         private static List<string> GenerateHttpMethodFunctionVariables()
         {
             if (CurrentHttpMethodHasParameters)
@@ -164,7 +194,7 @@ namespace TSCodegen.WebAPI
                         return new List<string>()
                         {
                             $"{IndentSpaces}const params = {{ {string.Join(", ", CurrentHttpMethodParameters.Select(p => p.Name))} }};",
-                            $"{IndentSpaces}const paramsSerializer = (params: any) => qs.stringify(params, {{ allowDots: true }});",
+                            $"{IndentSpaces}const paramsSerializer = (params: any) => qs.stringify({GenerateQueryStringStringifyArguments()});",
                         };
 
                 if (CurrentHttpMethodIsWriteType)
@@ -264,7 +294,7 @@ namespace TSCodegen.WebAPI
                 strings.Add($"");
             }
 
-            var httpMethodPostfix = CurrentHttpMethodParameters.Length > 0 && CurrentHttpMethodParameters[0].GetCustomAttributes(typeof(FromFormAttribute)).Any() ? "Form" : string.Empty;
+            var httpMethodPostfix = CurrentHttpMethodParameters.Length > 0 && CurrentHttpMethodParameters[0].GetCustomAttributes(typeof(FromFormAttribute)).Any() ? "Form" : "";
 
             strings.Add($"export default async ({string.Join(", ", parameterStrings.ToArray().Reverse())}) => {{");
             strings.Add($"{IndentSpaces}const url = \"{Helpers.GetControllerName(CurrentController)}/{CurrentHttpMethod.Name}\";");

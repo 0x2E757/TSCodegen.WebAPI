@@ -32,6 +32,8 @@ Codegen.Run(new Codegen.Config
     OutputPath = @"\ui\api",
     AxiosImportPath = @"axios",
     Indentation = 4,
+    AllowDots = true,
+    SkipNulls = true,
     ForbiddenNamespaces = new()
     {
         "Project.Database.Core.Entities",

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using TSCodegen;
+using TSCodegen.Exceptions;
 
 namespace TSCodegen.WebAPI
 {
@@ -112,7 +114,7 @@ namespace TSCodegen.WebAPI
 
             return Controllers = types
                 .Where(t => t.GetCustomAttributes(typeof(ApiControllerAttribute)).Any())
-                .Where(t => t.GetCustomAttribute(typeof(CodegenIgnoreAttribute)) == null);
+                .Where(t => t.GetCustomAttribute<CodegenIgnoreAttribute>() == null);
         }
 
         private static IEnumerable<MethodInfo> GetHttpMethods()
@@ -121,7 +123,7 @@ namespace TSCodegen.WebAPI
 
             return HttpMethods = methods
                 .Where(m => m.GetCustomAttributes().Any(ca => ca.GetType().Name.StartsWith("Http")))
-                .Where(t => t.GetCustomAttribute(typeof(CodegenIgnoreAttribute)) == null);
+                .Where(t => t.GetCustomAttribute<CodegenIgnoreAttribute>() == null);
         }
 
         private static void GetCurrentHttpMethodParameters()
@@ -338,12 +340,28 @@ namespace TSCodegen.WebAPI
                 {
                     CurrentHttpMethod = httpMethod;
 
+#pragma warning disable CS0618 // Type or member is obsolete
+                    var suppressErrors = CurrentHttpMethod.GetCustomAttribute<CodegenSuppressErrorsAttribute>() != null;
+#pragma warning restore CS0618 // Type or member is obsolete
+
                     GetCurrentHttpMethodParameters();
                     GetCurrentHttpMethodType();
                     GetCurrentHttpMethodAlias();
 
-                    ControllerTypeScriptTypes.Add(CurrentHttpMethodParameters.Select(p => new TypeScriptType(p.ParameterType)));
-                    ControllerTypeScriptTypes.Add(new TypeScriptType(CurrentHttpMethod.ReturnType));
+                    try
+                    {
+                        ControllerTypeScriptTypes.Add(CurrentHttpMethodParameters.Select(p => new TypeScriptType(p.ParameterType)), suppressErrors);
+                        ControllerTypeScriptTypes.Add(new TypeScriptType(CurrentHttpMethod.ReturnType), suppressErrors);
+                    }
+                    catch (ForbiddenNamespaceException ex)
+                    {
+                        if (ex.TypeScriptType == null)
+                            throw new ForbiddenNamespaceException($"{ex.Message} Refactor in {CurrentController.Name}.{CurrentHttpMethod.Name} required.", ex);
+
+                        var endpoint = $"{CurrentHttpMethod.Name} ({CurrentController.Name})";
+                        var model = $"{ex.TypeScriptType.CSharpType.Namespace}.{ex.TypeScriptType.CSharpType.Name}";
+                        throw new ForbiddenNamespaceException($"Endpoint {endpoint} response contains forbidden {model}.", ex);
+                    }
 
                     var httpMethodLines = GenerateHttpMethodFile();
 

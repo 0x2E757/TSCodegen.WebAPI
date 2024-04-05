@@ -44,6 +44,8 @@ Codegen.Run(new Codegen.Config
 
 To controllers or methods you would like to omit apply `CodegenIgnore` attribute.
 
+To delay refactoring restricted return models namespaces apply `CodegenSuppressErrors` attribute to endpoint method.
+
 ### Codegen.Config properties
 
 #### OutputPath
